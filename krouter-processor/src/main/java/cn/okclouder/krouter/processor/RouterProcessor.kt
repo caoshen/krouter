@@ -1,10 +1,9 @@
 package cn.okclouder.krouter.processor
 
 import cn.okclouder.krouter.annotation.Router
+import cn.okclouder.krouter.annotation.RouterBean
 import com.google.auto.service.AutoService
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.*
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Modifier
@@ -47,8 +46,18 @@ class RouterProcessor : AbstractProcessor() {
             return true
         }
 
+        val companion = TypeSpec.companionObjectBuilder()
+            .addProperty(
+                PropertySpec.builder("router", HashMap::class)
+                    .build()
+            )
+            .addInitializerBlock(
+                CodeBlock.of("init {}")
+            )
+            .build()
         val typeSpec = TypeSpec.classBuilder("$moduleName" + "Loader")
             .addModifiers(KModifier.PUBLIC)
+            .addType(companion)
             .build()
 
         val file = FileSpec.builder(PACKAGE_NAME, typeSpec.name.toString()).build()
