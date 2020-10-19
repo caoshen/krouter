@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">KRouter</string>
+    <string name="login">login</string>
+    <string name="navigate_to_login">navigate to login</string>
+    <string name="navigate_to_live">navigate to live</string>
+    <string name="navigate_to_main">navigate to main</string>
 </resources>

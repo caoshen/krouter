@@ -4,12 +4,15 @@ import cn.okclouder.krouter.annotation.Router
 import cn.okclouder.krouter.annotation.RouterBean
 import com.google.auto.service.AutoService
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import java.util.*
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 import javax.tools.Diagnostic
+import kotlin.collections.HashMap
 
 @AutoService(Processor::class)
 class RouterProcessor : AbstractProcessor() {
@@ -46,21 +49,49 @@ class RouterProcessor : AbstractProcessor() {
             return true
         }
 
+        val routerMapName = "routerMap"
+        val builder = CodeBlock.builder()
+        elements.forEach {
+            val annotation = it.getAnnotation(Router::class.java)
+            val path = annotation.path
+            val group = path.substring(0, path.indexOf('/'))
+            builder.addStatement(
+                "%N[%S] = %T(%T::class.java, %S, %S)",
+                routerMapName,
+                path,
+                RouterBean::class,
+                it.asType(),
+                path,
+                group
+            )
+        }
         val companion = TypeSpec.companionObjectBuilder()
             .addProperty(
-                PropertySpec.builder("router", HashMap::class)
+                PropertySpec.builder(
+                    routerMapName, HashMap::class.parameterizedBy(
+                        String::class,
+                        RouterBean::class
+                    )
+                )
+                    .initializer("%T()", HashMap::class)
                     .build()
             )
             .addInitializerBlock(
-                CodeBlock.of("init {}")
+                builder.build()
             )
             .build()
-        val typeSpec = TypeSpec.classBuilder("$moduleName" + "Loader")
+
+        val routerLoader = TypeSpec.classBuilder(
+            "$moduleName".capitalize(Locale.getDefault())
+                    + "RouterLoader"
+        )
             .addModifiers(KModifier.PUBLIC)
             .addType(companion)
             .build()
 
-        val file = FileSpec.builder(PACKAGE_NAME, typeSpec.name.toString()).build()
+        val file = FileSpec.builder(PACKAGE_NAME, routerLoader.name.toString())
+            .addType(routerLoader)
+            .build()
         file.writeTo(processingEnv.filer)
 
         return true
