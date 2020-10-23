@@ -1,0 +1,42 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+apply plugin: 'groovy'
+
+dependencies {
+    // gradle sdk
+    implementation gradleApi()
+    // groovy sdk
+    implementation localGroovy()
+    // android build gradle api
+    implementation "com.android.tools.build:gradle:4.0.1"
+    // asm6
+    implementation "org.ow2.asm:asm:6.0"
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // kotlin std lib
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.10"
+}
+
+// support groovy
+compileGroovy {
+    dependsOn tasks.getByPath("compileKotlin")
+    classpath += files(compileKotlin.destinationDir)
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+repositories {
+    google()
+    jcenter()
+    mavenCentral()
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10"
+    }
+}

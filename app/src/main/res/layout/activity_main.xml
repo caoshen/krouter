@@ -16,4 +16,10 @@
         android:layout_height="wrap_content"
         android:text="@string/navigate_to_live"
         android:onClick="navigateLive"/>
+
+    <TextView
+        android:id="@+id/tv_routes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hello_world"/>
 </LinearLayout>
