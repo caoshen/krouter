@@ -1,6 +1,7 @@
 package cn.okclouder.krouter.build.transform
 
 import cn.okclouder.krouter.build.utils.ScanCondition
+import cn.okclouder.krouter.build.utils.ScanHelper
 import cn.okclouder.krouter.build.utils.createParent
 import com.android.SdkConstants
 import com.android.build.api.transform.*
@@ -104,13 +105,13 @@ abstract class DemoTransform : Transform() {
     }
 
     private fun transformJar(inputJar: File, out: File) {
-        // TODO add scan file from jar input
+        ScanHelper.scanFromJarInput(inputJar, out, getScanConditions())
         out.createParent()
         FileUtils.copyFile(inputJar, out)
     }
 
     private fun transformFile(inputFile: File, out: File) {
-        // TODO add scan file from directory input
+        ScanHelper.scanFromDirectoryInput(inputFile, out, getScanConditions())
         out.createParent()
         FileUtils.copyFile(inputFile, out)
     }
